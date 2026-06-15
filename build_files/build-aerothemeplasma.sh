@@ -19,9 +19,9 @@ dnf install -y gcc gcc-c++ cmake make extra-cmake-modules plasma-workspace-devel
 
 
 
-CUR_DIR=/tmp/vtp
+CUR_DIR=/tmp/atp
 
-git clone --depth 1 https://gitgud.io/aeroshell/vtp/vistathemeplasma/ $CUR_DIR
+git clone --depth 1 https://gitgud.io/aeroshell/atp/aerothemeplasma/ $CUR_DIR
 cd $CUR_DIR
 
 SU_CMD=
