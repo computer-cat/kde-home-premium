@@ -21,7 +21,7 @@ dnf install -y plasma-workspace-devel unzip kvantum qt6-qtmultimedia-devel qt6-q
 
 CUR_DIR=/tmp/atp
 
-git clone --depth 1 https://gitgud.io/aeroshell/atp/aerothemeplasma.git $CUR_DIR
+git clone --depth 1 https://github.com/aeroshell-desktop/aerothemeplasma.git $CUR_DIR
 cd $CUR_DIR
 
 SU_CMD=
