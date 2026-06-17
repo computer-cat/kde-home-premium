@@ -30,8 +30,128 @@ NINJA_PARAM="--ninja"
 LIBEXEC_DIR=libexec
 UAC_LIBEXEC_DIR=libexec/kf6
 
-chmod +x install.sh
-./install.sh --skip-x11
+#chmod +x install.sh
+#./install.sh --skip-x11
+
+# I hardcode the install.sh script in order to pull from atp's github mirror, as it is not currently correctly able to clone currently
+
+CUR_DIR=${PWD}
+
+SU_CMD=sudo
+if [[ -z "$(command -v $SU_CMD)" ]]; then
+    SU_CMD=doas
+    if [[ -z "$(command -v $SU_CMD)" ]]; then
+        echo "Neither sudo or doas were detected on the system."
+        exit
+    fi
+fi
+
+
+if [ -z $LIBEXEC_DIR ]; then
+    LIBEXEC_DIR=lib
+    UAC_LIBEXEC_DIR=lib
+fi
+
+if [[ "$(command -v dnf)" ]]; then # Automatically change for Fedora
+    LIBEXEC_DIR=libexec
+    UAC_LIBEXEC_DIR=libexec/kf6
+fi
+
+mkdir -p repos
+mkdir -p manifest
+cd repos
+
+# libplasma last
+git clone https://github.com/aeroshell-desktop/libplasma.git libplasma
+cd libplasma
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/libplasma_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# uac-polkit-agent
+git clone https://github.com/aeroshell-desktop/uac-polkit-agent.git uac-polkit-agent
+cd uac-polkit-agent
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBEXECDIR=$UAC_LIBEXEC_DIR -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/uac-polkit-agent_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# SMOD
+git clone https://github.com/aeroshell-desktop/smod.git smod
+cd smod
+git pull
+bash install.sh $@
+cp build/install_manifest.txt "$CUR_DIR/manifest/smod_install_manifest.txt"
+cp smodglow/build-wl/install_manifest.txt "$CUR_DIR/manifest/smodglow_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aeroshell Workspace
+git clone https://github.com/aeroshell-desktop/aeroshell-workspace.git aeroshell-workspace
+cd aeroshell-workspace
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+$SU_CMD update-mime-database "/usr/local/share/mime"
+cp build/install_manifest.txt "$CUR_DIR/manifest/aeroshell-workspace_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aeroshell KWin
+git clone https://github.com/aeroshell-desktop/aeroshell-kwin-components.git aeroshell-kwin-components
+cd aeroshell-kwin-components
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DKWIN_BUILD_WAYLAND=ON -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/aeroshell-kwin-components_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aeroshell SDDM KCM
+git clone https://github.com/aeroshell-desktop/aeroshell-sddm-kcm.git aeroshell-sddm-kcm
+cd aeroshell-sddm-kcm
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/aeroshell-sddm-kcm_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aerothemeplasma icons
+git clone https://github.com/aeroshell-desktop/atp/aerothemeplasma-icons aerothemeplasma-icons
+cd aerothemeplasma-icons
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/icons_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aerothemeplasma sounds
+git clone https://github.com/aeroshell-desktop/atp/aerothemeplasma-sounds aerothemeplasma-sounds
+cd aerothemeplasma-sounds
+git pull
+cmake -DCMAKE_INSTALL_PREFIX=/usr -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/sounds_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+# Aerothemeplasma
+cd "$CUR_DIR"
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBEXECDIR=$LIBEXEC_DIR -B build . || exit 1
+cmake --build build || exit 1
+$SU_CMD cmake --install build || exit 1
+cp build/install_manifest.txt "$CUR_DIR/manifest/aerothemeplasma_install_manifest.txt"
+cd "$CUR_DIR/repos"
+
+
+echo "Done."
+
 
 rm /usr/share/wayland-sessions/plasma.desktop
 
