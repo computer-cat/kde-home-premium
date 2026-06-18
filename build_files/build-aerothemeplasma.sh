@@ -24,10 +24,10 @@ git clone --depth 1 https://gitgud.io/aeroshell/atp/aerothemeplasma/ $CUR_DIR
 cd $CUR_DIR
 
 SU_CMD=
-USE_NINJA="-G Ninja"
-NINJA_PARAM="--ninja"
-LIBEXEC_DIR=libexec
-UAC_LIBEXEC_DIR=libexec/kf6
+export USE_NINJA="-G Ninja"
+export NINJA_PARAM="--ninja"
+export LIBEXEC_DIR=libexec
+export UAC_LIBEXEC_DIR=libexec/kf6
 
 chmod +x install.sh
 ./install.sh --skip-x11
